@@ -55,10 +55,20 @@ class TestharnessResultConverter(object):
 
     def __call__(self, test, result):
         """Convert a JSON result into a (TestResult, [SubtestResult]) tuple"""
+        '''
         result_url, status, message, stack, subtest_results = result
         assert result_url == test.url, ("Got results from %s, expected %s" %
                                       (result_url, test.url))
+        '''
+        # FIXME glue jeffcarp wrote
+        status = result['status']
+        message = ''
+        if 'message' in result:
+            message = result['message']
+        subtest_results = [(t['name'], t['status'], t['message'], t['stack']) for t in result['tests']]
+
         harness_result = test.result_cls(self.harness_codes[status], message)
+
         return (harness_result,
                 [test.subtest_result_cls(name, self.test_codes[status], message, stack)
                  for name, status, message, stack in subtest_results])
@@ -168,6 +178,9 @@ class TestExecutor(object):
 
     def test_url(self, test):
         return urlparse.urljoin(self.server_url(test.environment["protocol"]), test.url)
+
+    def test_timeout(self, test):
+        return test.timeout * self.timeout_multiplier if self.debug_info is None else None
 
     @abstractmethod
     def do_test(self, test):
@@ -314,6 +327,7 @@ class Protocol(object):
     def __init__(self, executor, browser):
         self.executor = executor
         self.browser = browser
+        self.timeout = None
 
     @property
     def logger(self):
@@ -327,3 +341,6 @@ class Protocol(object):
 
     def wait(self):
         pass
+
+    def set_timeout(self, timeout):
+        self.timeout = timeout

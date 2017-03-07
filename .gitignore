@@ -5,3 +5,6 @@
 _virtualenv
 test/test.cfg
 test/metadata/MANIFEST.json
+tools
+sauce-credentials.ini
+wptrunner.egg-info

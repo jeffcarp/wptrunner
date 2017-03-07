@@ -160,6 +160,8 @@ def run_tests(config, test_paths, product, **kwargs):
                 logger.critical("Error starting test environment: %s" % e.message)
                 raise
 
+            assert test_environment.external_config, 'need external conifg'
+
             browser_kwargs = get_browser_kwargs(ssl_env=ssl_env, **kwargs)
 
             repeat = kwargs["repeat"]
